@@ -216,13 +216,6 @@ namespace VRGIN.Core
             _Camera = gameObject.AddComponent<Camera>();
             gameObject.AddComponent<SteamVR_Camera>();
             SteamCam = GetComponent<SteamVR_Camera>();
-            SteamCam.Expand(); // Expand immediately!
-
-            if (!VR.Settings.MirrorScreen)
-            {
-                Destroy(SteamCam.head.GetComponent<SteamVR_GameView>());
-                Destroy(SteamCam.head.GetComponent<Camera>()); // Save GPU power
-            }
 
             // Set render scale to the value defined by the user
             SteamVR_Camera.sceneResolutionScale = VR.Settings.RenderScale;
