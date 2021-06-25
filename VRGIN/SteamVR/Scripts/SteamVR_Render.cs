@@ -337,7 +337,7 @@ public class SteamVR_Render : MonoBehaviour
 #else
 	void OnCameraPreCull(Camera cam)
 	{
-#if !( UNITY_5_4 )
+#if !( UNITY_5_4 || UNITY_5_6 )
 		if (cam.cameraType != CameraType.VR)
 			return;
 #endif
