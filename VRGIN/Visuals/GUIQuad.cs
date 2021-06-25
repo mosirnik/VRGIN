@@ -45,6 +45,7 @@ namespace VRGIN.Visuals
             VRLog.Info("Create GUI");
             var gui = GameObject.CreatePrimitive(PrimitiveType.Quad).AddComponent<GUIQuad>();
             gui.name = "GUIQuad";
+            gui.gameObject.AddComponent<Rigidbody>().isKinematic = true;
             
             if(source != VR.GUI)
             {
