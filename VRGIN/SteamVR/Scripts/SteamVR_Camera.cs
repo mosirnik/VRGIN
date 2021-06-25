@@ -7,7 +7,6 @@
 using UnityEngine;
 using System.Collections;
 using System.Reflection;
-using VRGIN.Core;
 using Valve.VR;
 
 [RequireComponent(typeof(Camera))]
@@ -197,7 +196,6 @@ public class SteamVR_Camera : MonoBehaviour
 			transform.localScale = Vector3.one;
 
 			while (transform.childCount > 0)
-				VRLog.Info("Timing change because not end of expnad");
 				transform.GetChild(0).parent = head;
 #if !UNITY_2017_2_OR_NEWER
 			var guiLayer = GetComponent<GUILayer>();
@@ -220,10 +218,7 @@ public class SteamVR_Camera : MonoBehaviour
 		}
 
 		if (!name.EndsWith(eyeSuffix))
-		{
 			name += eyeSuffix;
-
-		}
 	}
 
 	public void Collapse()

@@ -1,4 +1,4 @@
-//======= Copyright (c) Valve Corporation, All rights reserved. ===============
+﻿//======= Copyright (c) Valve Corporation, All rights reserved. ===============
 //
 // Purpose: Handles rendering of all SteamVR_Cameras
 //
@@ -337,7 +337,7 @@ public class SteamVR_Render : MonoBehaviour
 #else
 	void OnCameraPreCull(Camera cam)
 	{
-#if !(UNITY_5_4 || UNITY_5_6)
+#if !( UNITY_5_4 )
 		if (cam.cameraType != CameraType.VR)
 			return;
 #endif
@@ -351,7 +351,7 @@ public class SteamVR_Render : MonoBehaviour
 	static int lastFrameCount = -1;
 #endif
 
-		void Update()
+	void Update()
 	{
 		// Force controller update in case no one else called this frame to ensure prevState gets updated.
 		SteamVR_Controller.Update();
