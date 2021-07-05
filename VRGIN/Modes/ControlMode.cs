@@ -45,10 +45,8 @@ namespace VRGIN.Modes
 
         public virtual void MoveToPosition(Vector3 targetPosition, Quaternion rotation = default(Quaternion), bool ignoreHeight = true)
         {
-            var targetForward = Calculator.GetForwardVector(rotation);
-            var currentForward = Calculator.GetForwardVector(VR.Camera.SteamCam.head.rotation);
-
-            VR.Camera.SteamCam.origin.rotation *= Quaternion.FromToRotation(currentForward, targetForward);
+            var levelRotation = MakeUpright(rotation) * Quaternion.Inverse(MakeUpright(VR.Camera.SteamCam.head.rotation));
+            VR.Camera.SteamCam.origin.rotation = levelRotation * VR.Camera.SteamCam.origin.rotation;
 
             float targetY = ignoreHeight ? 0 : targetPosition.y;
             float myY = ignoreHeight ? 0 : VR.Camera.SteamCam.head.position.y;
@@ -56,7 +54,12 @@ namespace VRGIN.Modes
             var myPosition = new Vector3(VR.Camera.SteamCam.head.position.x, myY, VR.Camera.SteamCam.head.position.z);
             VR.Camera.SteamCam.origin.position += (targetPosition - myPosition);
         }
-        
+
+        private static Quaternion MakeUpright(Quaternion rotation)
+        {
+            return Quaternion.Euler(0, rotation.eulerAngles.y, 0);
+        }
+
         public abstract ETrackingUniverseOrigin TrackingOrigin { get; }
 
         /// <summary>
