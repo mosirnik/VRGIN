@@ -284,6 +284,9 @@ namespace VRGIN.Core
                     Destroy(listener);
                 }
 
+                // Prevent Unity from moving this camera around.
+                blueprint.stereoTargetEye = StereoTargetEyeMask.None;
+
                 if (!hasOtherConsumers && blueprint.targetTexture == null && VR.Interpreter.IsIrrelevantCamera(blueprint))
                 {
                     //StartCoroutine(ExecuteDelayed(delegate { CopyFX(Blueprint); }));
