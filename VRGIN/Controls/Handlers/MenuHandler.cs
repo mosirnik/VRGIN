@@ -52,7 +52,7 @@ namespace VRGIN.Controls.Handlers
                 }
                 Laser = new GameObject().AddComponent<LineRenderer>();
                 Laser.transform.SetParent(attachPosition, false);
-                Laser.material = Resources.GetBuiltinResource<Material>("Sprites-Default.mat");
+                Laser.material = new Material(Shader.Find("Sprites/Default"));
                 Laser.material.renderQueue += 5000;
                 Laser.SetColors(Color.cyan, Color.cyan);
 

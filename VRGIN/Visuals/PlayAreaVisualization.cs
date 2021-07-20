@@ -32,7 +32,7 @@ namespace VRGIN.U46.Visuals
             foreach (var indicator in new Transform[] { Indicator, HeightIndicator })
             {
                 var renderer = indicator.GetComponent<Renderer>();
-                renderer.material = Resources.GetBuiltinResource<Material>("Sprites-Default.mat");
+                renderer.material = new Material(Shader.Find("Sprites/Default"));
                 //renderer.reflectionProbeUsage = UnityEngine.Rendering.ReflectionProbeUsage.Off;
                 //renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
 #if UNITY_4_5

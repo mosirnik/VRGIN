@@ -87,7 +87,7 @@ namespace VRGIN.Controls
 
             // Build line renderer
             _Line = gameObject.AddComponent<LineRenderer>();
-            _Line.material = Resources.GetBuiltinResource<Material>("Sprites-Default.mat");
+            _Line.material = new Material(Shader.Find("Sprites/Default"));
             //_Line.material.renderQueue;
             _Line.SetColors(Color.cyan, Color.cyan);
             _Line.useWorldSpace = false;
