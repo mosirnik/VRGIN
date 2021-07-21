@@ -25,6 +25,7 @@ namespace VRGIN.Core
         //public static SpeechManager Speech { get { return VRManager.Instance.Speech; } }
         public static HMDType HMD { get { return VRManager.Instance.HMD; } }
         public static bool Active { get; set; }
+        public static bool Quitting { get; internal set; }
     }
 
     public enum HMDType
@@ -196,6 +197,11 @@ namespace VRGIN.Core
                         break;
                 }
             }
+        }
+
+        private void OnApplicationQuit()
+        {
+            VR.Quitting = true;
         }
 
         private void OnControllersCreated(object sender, EventArgs e)

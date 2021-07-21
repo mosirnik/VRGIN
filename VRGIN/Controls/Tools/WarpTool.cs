@@ -89,6 +89,10 @@ namespace VRGIN.Controls.Tools
 
         protected override void OnDestroy()
         {
+            if (VR.Quitting)
+            {
+                return;
+            }
             VRLog.Info("Destroy!");
 
             DestroyImmediate(_Visualization.gameObject);
@@ -140,6 +144,10 @@ namespace VRGIN.Controls.Tools
 
         protected override void OnDisable()
         {
+            if (VR.Quitting)
+            {
+                return;
+            }
             base.OnDisable();
 
             EnterState(WarpState.None);

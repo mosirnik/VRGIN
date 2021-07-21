@@ -88,6 +88,11 @@ namespace VRGIN.Visuals
 
         protected virtual void OnDisable()
         {
+            if (VR.Quitting)
+            {
+                return;
+            }
+
             if (IsGUISource())
             {
                 VRLog.Info("Stop listening to GUI ({0})", name);
