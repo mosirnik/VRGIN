@@ -185,7 +185,7 @@ namespace VRGIN.Controls
             Collider = new GameObject("Collider").AddComponent<BoxCollider>();
             Collider.transform.SetParent(transform, false);
             Collider.center = new Vector3(0, -0.02f, -0.06f);
-            Collider.size = new Vector3(-0.05f, 0.05f, 0.2f);
+            Collider.size = new Vector3(0.05f, 0.05f, 0.2f);
             Collider.isTrigger = true;
 
             gameObject.AddComponent<Rigidbody>().isKinematic = true;
