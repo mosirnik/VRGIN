@@ -24,10 +24,16 @@ namespace VRGIN.Controls.Handlers
                             30, 10, 3f, 1500, 10);
         }
 
-        protected override void OnLevel(int level)
+        private void OnLevelWasLoaded(int level)
         {
-            base.OnLevel(level);
-            OnStop();
+            try
+            {
+                OnStop();
+            }
+            catch(Exception ex)
+            {
+                VRLog.Error(ex);
+            }
 
         }
 

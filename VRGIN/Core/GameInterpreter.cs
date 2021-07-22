@@ -38,13 +38,6 @@ namespace VRGIN.Core
             }
         }
 
-        protected override void OnLevel(int level)
-        {
-            base.OnLevel(level);
-
-            VRLog.Info("Loaded level {0}", level);
-        }
-
         /// <summary>
         /// Finds the first actor who has no head (= is impersonated) or NULL.
         /// </summary>

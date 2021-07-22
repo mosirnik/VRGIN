@@ -256,12 +256,17 @@ namespace VRGIN.Core
             }
         }
 
-        protected override void OnLevel(int level)
+        private void OnLevelWasLoaded(int level)
         {
-            base.OnLevel(level);
-            
-            _CheckedCameras.Clear();
-            _CameraMappings.Clear();
+            try
+            {
+                _CheckedCameras.Clear();
+                _CameraMappings.Clear();
+            }
+            catch(Exception ex)
+            {
+                VRLog.Error(ex);
+            }
 
             //var firstCam = _NGUICameras.OrderBy(c => c.depth).FirstOrDefault();
             //if(firstCam)

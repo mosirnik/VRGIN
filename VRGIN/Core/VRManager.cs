@@ -164,9 +164,16 @@ namespace VRGIN.Core
         {
         }
 
-        protected override void OnLevel(int level)
+        private void OnLevelWasLoaded(int level)
         {
-            _CheckedCameras.Clear();
+            try
+            {
+                _CheckedCameras.Clear();
+            }
+            catch(Exception ex)
+            {
+                VRLog.Error(ex);
+            }
             //StartCoroutine(Load());
         }
 
