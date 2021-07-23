@@ -17,16 +17,9 @@ namespace VRGIN.Core
     /// </summary>
     public class VRLog
     {
-        private static string LOG_PATH = "vr.log";
         private static object _LOCK = new object();
-        private static StreamWriter S_Handle;
 
-        static VRLog()
-        {
-            S_Handle = new StreamWriter(File.OpenWrite(LOG_PATH));
-            S_Handle.BaseStream.SetLength(0);
-            S_Handle.AutoFlush = true;
-        }
+        public static ILoggerBackend Backend { get; set; }
 
         protected VRLog() { }
 
@@ -86,46 +79,71 @@ namespace VRGIN.Core
             {
                 if (severity < Level) return;
 
-#if COLOR_SUPPORT
-                ConsoleColor foregroundColor = ConsoleColor.White;
-                ConsoleColor backgroundColor = ConsoleColor.Black;
-
-                switch (severity)
-                {
-                    case LogMode.Debug:
-                        foregroundColor = ConsoleColor.Gray;
-                        break;
-                    case LogMode.Warning:
-                        foregroundColor = ConsoleColor.Yellow;
-                        break;
-                    case LogMode.Error:
-                        backgroundColor = ConsoleColor.Red;
-                        break;
-                }
-
-                Console.ForegroundColor = foregroundColor;
-                Console.BackgroundColor = backgroundColor;
-#endif
-                string formatted = String.Format(Format(text, severity), args);
                 lock (_LOCK)
                 {
-                    Console.WriteLine(formatted);
-                    S_Handle.WriteLine(formatted);
+                    if (Backend == null)
+                    {
+                        Backend = new DefaultLoggerBackend();
+                    }
+                    Backend.Log(text, args, severity);
                 }
-
-#if COLOR_SUPPORT
-                Console.ResetColor();
-#endif
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
             }
         }
+    }
 
-        private static String Format(string text, LogMode mode)
+    public interface ILoggerBackend
+    {
+        void Log(string text, object[] args, Logger.LogMode severity);
+    }
+
+    public class DefaultLoggerBackend : ILoggerBackend
+    {
+        private static string LOG_PATH = "vr.log";
+
+        private StreamWriter _Handle;
+        public DefaultLoggerBackend()
         {
-            var trace = new StackTrace(3);
+            _Handle = new StreamWriter(File.OpenWrite(LOG_PATH));
+            _Handle.BaseStream.SetLength(0);
+            _Handle.AutoFlush = true;
+        }
+
+        public void Log(string text, object[] args, Logger.LogMode severity)
+        {
+#if COLOR_SUPPORT
+            ConsoleColor foregroundColor = ConsoleColor.White;
+            ConsoleColor backgroundColor = ConsoleColor.Black;
+
+            switch (severity)
+            {
+                case LogMode.Debug:
+                    foregroundColor = ConsoleColor.Gray;
+                    break;
+                case LogMode.Warning:
+                    foregroundColor = ConsoleColor.Yellow;
+                    break;
+                case LogMode.Error:
+                    backgroundColor = ConsoleColor.Red;
+                    break;
+            }
+
+            Console.ForegroundColor = foregroundColor;
+            Console.BackgroundColor = backgroundColor;
+#endif
+            string formatted = String.Format(Format(text, severity), args);
+            Console.WriteLine(formatted);
+            _Handle.WriteLine(formatted);
+#if COLOR_SUPPORT
+            Console.ResetColor();
+#endif
+        }
+        private static String Format(string text, Logger.LogMode mode)
+        {
+            var trace = new StackTrace(4);
             var caller = trace.GetFrame(0);
             return String.Format("[{0}][{1}][{3}#{4}] {2}", DateTime.Now.ToString("HH':'mm':'ss"), mode.ToString().ToUpper(), text, caller.GetMethod().DeclaringType.Name, caller.GetMethod().Name, caller.GetFileLineNumber());
         }
