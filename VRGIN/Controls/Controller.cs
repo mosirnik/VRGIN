@@ -434,7 +434,7 @@ namespace VRGIN.Controls
             // Hack for alpha order
             _AlphaConcealer = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             _AlphaConcealer.transform.SetParent(transform, false);
-            _AlphaConcealer.transform.localScale = new Vector3(0.05f, 0, 0.05f);
+            _AlphaConcealer.transform.localScale = new Vector3(0.05f, 0.0001f, 0.05f);
             _AlphaConcealer.transform.localPosition = new Vector3(0, -0.0303f, 0.0142f);
             _AlphaConcealer.transform.localRotation = Quaternion.Euler(60, 0, 0);
             _AlphaConcealer.GetComponent<Collider>().enabled = false;
