@@ -178,5 +178,10 @@ namespace VRGIN.Core
         {
             return camera.GetComponent("UICamera");
         }
+
+        /// <summary>
+        /// Returns wether the application is quitting.
+        /// </summary>
+        public virtual bool ApplicationIsQuitting => false;
     }
 }

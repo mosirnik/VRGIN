@@ -25,7 +25,9 @@ namespace VRGIN.Core
         //public static SpeechManager Speech { get { return VRManager.Instance.Speech; } }
         public static HMDType HMD { get { return VRManager.Instance.HMD; } }
         public static bool Active { get; set; }
-        public static bool Quitting { get; internal set; }
+        public static bool Quitting => _Quitting || (_Quitting = VRManager.Instance.Interpreter.ApplicationIsQuitting);
+            // Cache the result so that this remains true after the interpreter is destroyed.
+        internal static bool _Quitting = false;
     }
 
     public enum HMDType
@@ -206,14 +208,14 @@ namespace VRGIN.Core
             }
         }
 
-        private void OnApplicationQuit()
-        {
-            VR.Quitting = true;
-        }
-
         private void OnControllersCreated(object sender, EventArgs e)
         {
             ModeInitialized(this, new ModeInitializedEventArgs(Mode));
+        }
+
+        private void OnDisable()
+        {
+            VR._Quitting = true;
         }
 
         public void EnableEffects()
