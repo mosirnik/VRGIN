@@ -160,69 +160,66 @@ namespace VRGIN.Controls.Handlers
                     EnsureNoResizeHandler();
                 }
 
-                if (!IsResizing)
+                if (Device.GetPressDown(EVRButtonId.k_EButton_SteamVR_Trigger))
                 {
-                    if (Device.GetPressDown(EVRButtonId.k_EButton_SteamVR_Trigger))
+                    VR.Input.Mouse.LeftButtonDown();
+                    _PressedButtons |= Buttons.Left;
+                    mouseDownPosition = Vector2.Scale(new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y), _ScaleVector);
+                }
+                if (Device.GetPressUp(EVRButtonId.k_EButton_SteamVR_Trigger))
+                {
+                    _PressedButtons &= ~Buttons.Left;
+                    VR.Input.Mouse.LeftButtonUp();
+                    mouseDownPosition = null;
+                }
+                if (Device.GetPressDown(EVRButtonId.k_EButton_SteamVR_Touchpad))
+                {
+                    _LastDirection = _Controller.GetTrackpadDirection();
+                    switch (_LastDirection)
                     {
-                        VR.Input.Mouse.LeftButtonDown();
-                        _PressedButtons |= Buttons.Left;
-                        mouseDownPosition = Vector2.Scale(new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y), _ScaleVector);
+                        case Controller.TrackpadDirection.Right:
+                            VR.Input.Mouse.RightButtonDown();
+                            _PressedButtons |= Buttons.Right;
+                            break;
+                        case Controller.TrackpadDirection.Center:
+                            VR.Input.Mouse.MiddleButtonDown();
+                            _PressedButtons |= Buttons.Middle;
+                            break;
+                        default:
+                            break;
                     }
-                    if (Device.GetPressUp(EVRButtonId.k_EButton_SteamVR_Trigger))
+                }
+                if (Device.GetPressUp(EVRButtonId.k_EButton_SteamVR_Touchpad))
+                {
+                    switch (_LastDirection)
                     {
-                        _PressedButtons &= ~Buttons.Left;
-                        VR.Input.Mouse.LeftButtonUp();
-                        mouseDownPosition = null;
+                        case Controller.TrackpadDirection.Right:
+                            VR.Input.Mouse.RightButtonUp();
+                            _PressedButtons &= ~Buttons.Right;
+                            break;
+                        case Controller.TrackpadDirection.Center:
+                            VR.Input.Mouse.MiddleButtonUp();
+                            _PressedButtons &= ~Buttons.Middle;
+                            break;
+                        case Controller.TrackpadDirection.Up:
+                            VR.Input.Mouse.VerticalScroll(1);
+                            break;
+                        case Controller.TrackpadDirection.Down:
+                            VR.Input.Mouse.VerticalScroll(-1);
+                            break;
+                        default:
+                            break;
                     }
-                    if (Device.GetPressDown(EVRButtonId.k_EButton_SteamVR_Touchpad))
-                    {
-                        _LastDirection = _Controller.GetTrackpadDirection();
-                        switch (_LastDirection)
-                        {
-                            case Controller.TrackpadDirection.Right:
-                                VR.Input.Mouse.RightButtonDown();
-                                _PressedButtons |= Buttons.Right;
-                                break;
-                            case Controller.TrackpadDirection.Center:
-                                VR.Input.Mouse.MiddleButtonDown();
-                                _PressedButtons |= Buttons.Middle;
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                    if (Device.GetPressUp(EVRButtonId.k_EButton_SteamVR_Touchpad))
-                    {
-                        switch (_LastDirection)
-                        {
-                            case Controller.TrackpadDirection.Right:
-                                VR.Input.Mouse.RightButtonUp();
-                                _PressedButtons &= ~Buttons.Right;
-                                break;
-                            case Controller.TrackpadDirection.Center:
-                                VR.Input.Mouse.MiddleButtonUp();
-                                _PressedButtons &= ~Buttons.Middle;
-                                break;
-                            case Controller.TrackpadDirection.Up:
-                                VR.Input.Mouse.VerticalScroll(1);
-                                break;
-                            case Controller.TrackpadDirection.Down:
-                                VR.Input.Mouse.VerticalScroll(-1);
-                                break;
-                            default:
-                                break;
-                        }
-                    }
+                }
 
-                    if (Device.GetPressDown(EVRButtonId.k_EButton_Grip) && !_Target.IsOwned)
-                    {
-                        _Target.transform.SetParent(_Controller.transform, true);
-                        _Target.IsOwned = true;
-                    }
-                    if (Device.GetPressUp(EVRButtonId.k_EButton_Grip))
-                    {
-                        AbandonGUI();
-                    }
+                if (Device.GetPressDown(EVRButtonId.k_EButton_Grip) && !_Target.IsOwned)
+                {
+                    _Target.transform.SetParent(_Controller.transform, true);
+                    _Target.IsOwned = true;
+                }
+                if (Device.GetPressUp(EVRButtonId.k_EButton_Grip))
+                {
+                    AbandonGUI();
                 }
             }
         }
@@ -419,8 +416,8 @@ namespace VRGIN.Controls.Handlers
             protected override void OnUpdate()
             {
                 base.OnUpdate();
-                IsDragging = GetDevice(VR.Mode.Left).GetPress(EVRButtonId.k_EButton_SteamVR_Trigger) &&
-                       GetDevice(VR.Mode.Right).GetPress(EVRButtonId.k_EButton_SteamVR_Trigger);
+                IsDragging = GetDevice(VR.Mode.Left).GetPress(EVRButtonId.k_EButton_Grip) &&
+                       GetDevice(VR.Mode.Right).GetPress(EVRButtonId.k_EButton_Grip);
 
                 if (IsDragging)
                 {
