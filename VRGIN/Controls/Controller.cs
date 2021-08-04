@@ -484,5 +484,40 @@ namespace VRGIN.Controls
             if (node == null) return null;
             return node.Find("attach");
         }
+
+        public enum TrackpadDirection
+        {
+            Up,
+            Down,
+            Left,
+            Right,
+            Center,
+        }
+
+        public TrackpadDirection GetTrackpadDirection()
+        {
+            var touchPosition = Input.GetAxis();
+            var threshold = VR.Settings.TouchpadThreshold;
+            if (touchPosition.sqrMagnitude < threshold * threshold)
+            {
+                return TrackpadDirection.Center;
+            }
+            else if(Mathf.Abs(touchPosition.y) < touchPosition.x)
+            {
+                return TrackpadDirection.Right;
+            }
+            else if(Mathf.Abs(touchPosition.x) < touchPosition.y)
+            {
+                return TrackpadDirection.Up;
+            }
+            else if(touchPosition.x < -Mathf.Abs(touchPosition.y))
+            {
+                return TrackpadDirection.Left;
+            }
+            else
+            {
+                return TrackpadDirection.Down;
+            }
+        }
     }
 }

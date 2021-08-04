@@ -28,6 +28,15 @@ namespace VRGIN.Controls.Handlers
         MenuHandler _Other;
         ResizeHandler _ResizeHandler;
         private Vector3 _ScaleVector;
+        private Buttons _PressedButtons;
+        private Controller.TrackpadDirection _LastDirection;
+
+        enum Buttons
+        {
+            Left = 1,
+            Right = 2,
+            Middle = 4,
+        }
 
         protected override void OnStart()
         {
@@ -139,8 +148,6 @@ namespace VRGIN.Controls.Handlers
 
         protected void CheckInput()
         {
-            IsPressing = false;
-
             if (LaserVisible && _Target)
             {
                 if (_Other.LaserVisible && _Other._Target == _Target)
@@ -157,19 +164,54 @@ namespace VRGIN.Controls.Handlers
                 {
                     if (Device.GetPressDown(EVRButtonId.k_EButton_SteamVR_Trigger))
                     {
-                        IsPressing = true;
                         VR.Input.Mouse.LeftButtonDown();
+                        _PressedButtons |= Buttons.Left;
                         mouseDownPosition = Vector2.Scale(new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y), _ScaleVector);
-                    }
-                    if (Device.GetPress(EVRButtonId.k_EButton_SteamVR_Trigger))
-                    {
-                        IsPressing = true;
                     }
                     if (Device.GetPressUp(EVRButtonId.k_EButton_SteamVR_Trigger))
                     {
-                        IsPressing = true;
+                        _PressedButtons &= ~Buttons.Left;
                         VR.Input.Mouse.LeftButtonUp();
                         mouseDownPosition = null;
+                    }
+                    if (Device.GetPressDown(EVRButtonId.k_EButton_SteamVR_Touchpad))
+                    {
+                        _LastDirection = _Controller.GetTrackpadDirection();
+                        switch (_LastDirection)
+                        {
+                            case Controller.TrackpadDirection.Right:
+                                VR.Input.Mouse.RightButtonDown();
+                                _PressedButtons |= Buttons.Right;
+                                break;
+                            case Controller.TrackpadDirection.Center:
+                                VR.Input.Mouse.MiddleButtonDown();
+                                _PressedButtons |= Buttons.Middle;
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    if (Device.GetPressUp(EVRButtonId.k_EButton_SteamVR_Touchpad))
+                    {
+                        switch (_LastDirection)
+                        {
+                            case Controller.TrackpadDirection.Right:
+                                VR.Input.Mouse.RightButtonUp();
+                                _PressedButtons &= ~Buttons.Right;
+                                break;
+                            case Controller.TrackpadDirection.Center:
+                                VR.Input.Mouse.MiddleButtonUp();
+                                _PressedButtons &= ~Buttons.Middle;
+                                break;
+                            case Controller.TrackpadDirection.Up:
+                                VR.Input.Mouse.VerticalScroll(1);
+                                break;
+                            case Controller.TrackpadDirection.Down:
+                                VR.Input.Mouse.VerticalScroll(-1);
+                                break;
+                            default:
+                                break;
+                        }
                     }
 
                     if (Device.GetPressUp(EVRButtonId.k_EButton_Grip))
@@ -271,13 +313,32 @@ namespace VRGIN.Controls.Handlers
                 {
                     // Out of view
                     LaserVisible = false;
+                    ClearPresses();
                 }
             }
             else
             {
                 // May day, may day -- window is gone!
                 LaserVisible = false;
+                ClearPresses();
             }
+        }
+
+        private void ClearPresses()
+        {
+            if ((_PressedButtons & Buttons.Left) != 0)
+            {
+                VR.Input.Mouse.LeftButtonUp();
+            }
+            if ((_PressedButtons & Buttons.Right) != 0)
+            {
+                VR.Input.Mouse.RightButtonUp();
+            }
+            if ((_PressedButtons & Buttons.Middle) != 0)
+            {
+                VR.Input.Mouse.MiddleButtonUp();
+            }
+            _PressedButtons = 0;
         }
 
         private bool IsOtherWorkingOn(GUIQuad target)
@@ -327,7 +388,7 @@ namespace VRGIN.Controls.Handlers
             }
         }
 
-        public bool IsPressing { get; private set; }
+        public bool IsPressing => _PressedButtons != 0;
 
         class ResizeHandler : ProtectedBehaviour
         {

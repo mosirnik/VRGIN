@@ -144,6 +144,10 @@ namespace VRGIN.Core
         public string[] EffectBlacklist { get { return _EffectBlacklist; } set { _EffectBlacklist = value; } }
         private string[] _EffectBlacklist = { "BloomAndFlares", "DepthOfField" };
 
+        [XmlComment("Threshold for a touchpad click to be considered central.")]
+        public float TouchpadThreshold { get { return _TouchpadThreshold; } set { _TouchpadThreshold = value; } }
+        private float _TouchpadThreshold = 0.8f;
+
         public event EventHandler<PropertyChangedEventArgs> PropertyChanged = delegate { };
 
         public VRSettings()
