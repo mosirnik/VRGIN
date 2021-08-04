@@ -22,6 +22,7 @@ namespace VRGIN.Controls
             public bool IsInvalidating { get; private set; }
             public bool IsValid { get; private set; }
             private Controller _Controller;
+            public bool KeepsTool { get; private set; }
 
             public static readonly Lock Invalid = new Lock();
 
@@ -30,12 +31,13 @@ namespace VRGIN.Controls
                 IsValid = false;
             }
 
-            internal Lock(Controller controller)
+            internal Lock(Controller controller, bool keepTool)
             {
                 IsValid = true;
                 _Controller = controller;
                 _Controller._Lock = this;
-                _Controller.OnLock();
+                _Controller.OnLock(keepTool);
+                KeepsTool = keepTool;
             }
 
             public void Release()
@@ -43,7 +45,7 @@ namespace VRGIN.Controls
                 if (IsValid)
                 {
                     _Controller._Lock = null;
-                    _Controller.OnUnlock();
+                    _Controller.OnUnlock(KeepsTool);
                     IsValid = false;
                 }
                 else
@@ -103,14 +105,15 @@ namespace VRGIN.Controls
         /// Tries to acquire the focus of the controller, meaning that tools will be temporarily halted.
         /// </summary>
         /// <param name="lockObj">Lock object to fill. Will be assigned NULL when it failed.</param>
+        /// <param name="keepTool">Leave the tools enabled. Useful when the tool itself is taking the focus.</param>
         /// <returns>Whether or not the process was successful.</returns>
-        public bool TryAcquireFocus(out Lock lockObj)
+        public bool TryAcquireFocus(out Lock lockObj, bool keepTool = false)
         {
             lockObj = null;
 
             if (CanAcquireFocus())
             {
-                lockObj = new Lock(this);
+                lockObj = new Lock(this, keepTool);
                 return true;
             }
             else
@@ -122,11 +125,12 @@ namespace VRGIN.Controls
         /// <summary>
         /// Tries to acquire the focus of the controller, meaning that tools will be temporarily halted.
         /// </summary>
+        /// <param name="keepTool">Leave the tools enabled. Useful when the tool itself is taking the focus.</param>
         /// <returns>The lock object. Might be valid or invalid.</returns>
-        public Lock AcquireFocus()
+        public Lock AcquireFocus(bool keepTool = false)
         {
             Lock lockObj;
-            if (TryAcquireFocus(out lockObj))
+            if (TryAcquireFocus(out lockObj, keepTool))
             {
                 return lockObj;
             }
@@ -141,16 +145,22 @@ namespace VRGIN.Controls
             return _Lock == null || !_Lock.IsValid;
         }
 
-        protected virtual void OnLock()
+        protected virtual void OnLock(bool keepTool)
         {
-            ToolEnabled = false;
-            _AlphaConcealer.SetActive(false);
+            if (!keepTool)
+            {
+                ToolEnabled = false;
+                _AlphaConcealer.SetActive(false);
+            }
         }
 
-        protected virtual void OnUnlock()
+        protected virtual void OnUnlock(bool keepTool)
         {
-            ToolEnabled = true;
-            _AlphaConcealer.SetActive(true);
+            if (!keepTool)
+            {
+                ToolEnabled = true;
+                _AlphaConcealer.SetActive(true);
+            }
         }
 
         protected virtual void OnDestroy()
@@ -336,7 +346,7 @@ namespace VRGIN.Controls
                 TryReleaseLock();
             }
 
-            if (_Lock == null || !_Lock.IsValid)
+            if (_Lock == null || !_Lock.IsValid || _Lock.KeepsTool)
             {
                 if (device.GetPressDown(EVRButtonId.k_EButton_ApplicationMenu))
                 {
