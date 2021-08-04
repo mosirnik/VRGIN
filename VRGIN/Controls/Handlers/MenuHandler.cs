@@ -30,6 +30,7 @@ namespace VRGIN.Controls.Handlers
         private Vector3 _ScaleVector;
         private Buttons _PressedButtons;
         private Controller.TrackpadDirection _LastDirection;
+        private float? _NextScrollTime;
 
         enum Buttons
         {
@@ -172,9 +173,10 @@ namespace VRGIN.Controls.Handlers
                     VR.Input.Mouse.LeftButtonUp();
                     mouseDownPosition = null;
                 }
+                var currentDirection = _Controller.GetTrackpadDirection();
                 if (Device.GetPressDown(EVRButtonId.k_EButton_SteamVR_Touchpad))
                 {
-                    _LastDirection = _Controller.GetTrackpadDirection();
+                    _LastDirection = currentDirection;
                     switch (_LastDirection)
                     {
                         case Controller.TrackpadDirection.Right:
@@ -201,15 +203,21 @@ namespace VRGIN.Controls.Handlers
                             VR.Input.Mouse.MiddleButtonUp();
                             _PressedButtons &= ~Buttons.Middle;
                             break;
-                        case Controller.TrackpadDirection.Up:
-                            VR.Input.Mouse.VerticalScroll(1);
-                            break;
-                        case Controller.TrackpadDirection.Down:
-                            VR.Input.Mouse.VerticalScroll(-1);
-                            break;
                         default:
                             break;
                     }
+                }
+                switch (currentDirection)
+                {
+                    case Controller.TrackpadDirection.Up:
+                        Scroll(1);
+                        break;
+                    case Controller.TrackpadDirection.Down:
+                        Scroll(-1);
+                        break;
+                    default:
+                        _NextScrollTime = null;
+                        break;
                 }
 
                 if (Device.GetPressDown(EVRButtonId.k_EButton_Grip) && !_Target.IsOwned)
@@ -223,6 +231,24 @@ namespace VRGIN.Controls.Handlers
                 }
             }
         }
+
+        private void Scroll(int amount)
+        {
+            if (_NextScrollTime == null)
+            {
+                _NextScrollTime = Time.unscaledTime + 0.5f;
+            }
+            else if (_NextScrollTime < Time.unscaledTime)
+            {
+                _NextScrollTime += 0.1f;
+            }
+            else
+            {
+                return;
+            }
+            VR.Input.Mouse.VerticalScroll(amount);
+        }
+
         bool IsResizing
         {
             get
@@ -335,6 +361,7 @@ namespace VRGIN.Controls.Handlers
                 VR.Input.Mouse.MiddleButtonUp();
             }
             _PressedButtons = 0;
+            _NextScrollTime = null;
         }
 
         private void AbandonGUI()
