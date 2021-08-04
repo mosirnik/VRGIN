@@ -151,7 +151,10 @@ namespace VRGIN.Controls.Tools
         {
             ArcRenderer.Offset = _ProspectedPlayArea.Height;
             ArcRenderer.Scale = VR.Settings.IPDScale;
-            _ProspectedPlayArea.Position = new Vector3(ArcRenderer.target.x, _ProspectedPlayArea.Position.y, ArcRenderer.target.z);
+            if (ArcRenderer.Target is Vector3 target)
+            {
+                _ProspectedPlayArea.Position = new Vector3(target.x, _ProspectedPlayArea.Position.y, target.z);
+            }
         }
 
         private void CheckRotationalPress()

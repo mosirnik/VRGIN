@@ -16,7 +16,7 @@ namespace VRGIN.Visuals
         public float Velocity = 6f;
         private MeshFilter _MeshFilter;
         private Renderer _Renderer;
-        public Vector3 target;
+        public Vector3? Target { get; private set; }
         public float Offset = 0;
         public float Scale = 1;
         private Mesh _mesh;
@@ -53,23 +53,30 @@ namespace VRGIN.Visuals
             //float h = Mathf.Max(maxH, pos.y - Offset);
             float h = pos.y - Offset;
 
-            float totT1 = (Mathf.Sqrt(v * v - 2 * g * h) + v) / g;
-            float totT2 = (v - Mathf.Sqrt(v * v - 2 * g * h)) / g;
-            float totT = Mathf.Max(totT1, totT2);
-            totT = Mathf.Abs(totT);
-
-            float timeStep = totT / VertexCount;
-
-            for (int i = 0; i <= VertexCount; i++)
+            if (v * v >= 2 * g * h)
             {
-                float t = Mathf.Clamp(((i / (VertexCount - 1f)) * totT) + ((Time.time * UvSpeed) % 2) * timeStep - timeStep, 0, totT);
-                //Logger.Info(t);
-                vertices.Add(transform.InverseTransformPoint(pos + ((direction * Velocity) * t + 0.5f * Physics.gravity * t * t) * Scale));
+                float totT1 = (Mathf.Sqrt(v * v - 2 * g * h) + v) / g;
+                float totT2 = (v - Mathf.Sqrt(v * v - 2 * g * h)) / g;
+                float totT = Mathf.Max(totT1, totT2);
+                totT = Mathf.Abs(totT);
+
+                float timeStep = totT / VertexCount;
+
+                for (int i = 0; i <= VertexCount; i++)
+                {
+                    float t = Mathf.Clamp(((i / (VertexCount - 1f)) * totT) + ((Time.time * UvSpeed) % 2) * timeStep - timeStep, 0, totT);
+                    //Logger.Info(t);
+                    vertices.Add(transform.InverseTransformPoint(pos + ((direction * Velocity) * t + 0.5f * Physics.gravity * t * t) * Scale));
+                }
+
+
+                var target = transform.position + ((direction * Velocity) * totT + 0.5f * Physics.gravity * totT * totT) * Scale;
+                Target = new Vector3(target.x, 0, target.z);
             }
-
-
-            target = transform.position + ((direction * Velocity) * totT + 0.5f * Physics.gravity * totT * totT) * Scale;
-            target.y = 0;
+            else
+            {
+                Target = null;
+            }
 
             GetComponent<Renderer>().material.mainTextureOffset += new Vector2(UvSpeed * Time.deltaTime, 0);
 
