@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controls\Controller.cs" />
+    <Compile Include="Controls\GrabAction.cs" />
     <Compile Include="Controls\Handlers\BodyRumbleHandler.cs" />
     <Compile Include="Controls\Handlers\MenuHandler.cs" />
     <Compile Include="Controls\HelpText.cs" />
