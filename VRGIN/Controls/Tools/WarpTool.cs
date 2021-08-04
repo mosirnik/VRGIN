@@ -50,6 +50,7 @@ namespace VRGIN.Controls.Tools
         private const float EXACT_IMPERSONATION_TIME = 1;
         private Vector3 _PrevControllerPos;
         private Quaternion _PrevControllerRot;
+        private Controller.Lock _SelfLock = Controls.Controller.Lock.Invalid;
         private Controller.Lock _OtherLock;
         private float _InitialControllerDistance;
         private float _InitialIPD;
@@ -307,17 +308,17 @@ namespace VRGIN.Controls.Tools
 
         private void HandleGrabbing()
         {
-            if (OtherController.IsTracking && !HasLock())
+            if (OtherController.IsTracking && !HasOtherLock())
             {
                 OtherController.TryAcquireFocus(out _OtherLock);
             }
 
-            if (HasLock() && OtherController.Input.GetPressDown(SECONDARY_SCALE_BUTTON))
+            if (HasOtherLock() && OtherController.Input.GetPressDown(SECONDARY_SCALE_BUTTON))
             {
                 _ScaleInitialized = false;
             }
 
-            if (HasLock() && OtherController.Input.GetPressDown(SECONDARY_ROTATE_BUTTON))
+            if (HasOtherLock() && OtherController.Input.GetPressDown(SECONDARY_ROTATE_BUTTON))
             {
                 _RotationInitialized = false;
             }
@@ -325,7 +326,7 @@ namespace VRGIN.Controls.Tools
 
             if (Controller.GetPress(EVRButtonId.k_EButton_Grip))
             {
-                if (HasLock() && (OtherController.Input.GetPress(SECONDARY_ROTATE_BUTTON) || OtherController.Input.GetPress(SECONDARY_SCALE_BUTTON)))
+                if (HasOtherLock() && (OtherController.Input.GetPress(SECONDARY_ROTATE_BUTTON) || OtherController.Input.GetPress(SECONDARY_SCALE_BUTTON)))
                 {
                     var newFromTo = (OtherController.transform.position - transform.position).normalized;
 
@@ -446,8 +447,7 @@ namespace VRGIN.Controls.Tools
             switch (State)
             {
                 case WarpState.None:
-
-
+                    _SelfLock = Owner.AcquireFocus(keepTool: true);
                     break;
                 case WarpState.Rotating:
 
@@ -456,7 +456,7 @@ namespace VRGIN.Controls.Tools
                 case WarpState.Grabbing:
                     Owner.StopRumble(_TravelRumble);
                     _ScaleInitialized = _RotationInitialized = false;
-                    if (HasLock())
+                    if (HasOtherLock())
                     {
                         VRLog.Info("Releasing lock on other controller!");
                         _OtherLock.SafeRelease();
@@ -470,6 +470,10 @@ namespace VRGIN.Controls.Tools
             {
                 case WarpState.None:
                     SetVisibility(false);
+                    if (_SelfLock.IsValid)
+                    {
+                        _SelfLock.Release();
+                    }
                     break;
                 case WarpState.Rotating:
                     SetVisibility(true);
@@ -487,7 +491,7 @@ namespace VRGIN.Controls.Tools
 
             State = state;
         }
-        private bool HasLock()
+        private bool HasOtherLock()
         {
             return _OtherLock != null && _OtherLock.IsValid;
         }
