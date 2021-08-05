@@ -119,10 +119,6 @@ namespace VRGIN.Core
         public bool Leap { get { return _Leap; } set { _Leap = value; TriggerPropertyChanged("Leap"); } }
         private bool _Leap = false;
 
-        [XmlComment("Determines the rotation mode. If enabled, pulling the trigger while grabbing will immediately rotate you. When disabled, doing the same thing will let you 'drag' the view.")]
-        public bool GrabRotationImmediateMode { get { return _GrabRotationImmediateMode; } set { _GrabRotationImmediateMode = value; TriggerPropertyChanged("GrabRotationImmediateMode"); } }
-        private bool _GrabRotationImmediateMode = true;
-
         [XmlComment("How quickly the the view should rotate when doing so with the controllers.")]
         public float RotationMultiplier { get { return _RotationMultiplier; } set { _RotationMultiplier = value; TriggerPropertyChanged("RotationMultiplier"); } }
         private float _RotationMultiplier = 1f;

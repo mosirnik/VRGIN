@@ -128,7 +128,7 @@ namespace VRGIN.Controls
                 {
                     var origin = VR.Camera.SteamCam.origin.transform;
                     //VRLog.Info("Rotate: {0}", NormalizeAngle(diffRot.eulerAngles.y));
-                    if (!VR.Settings.GrabRotationImmediateMode && Controller.GetPress(ButtonMask.Trigger))
+                    if (Controller.GetPress(ButtonMask.Trigger))
                     {
                         var invRot = _PrevControllerRot * Quaternion.Inverse(transform.rotation);
 
@@ -145,16 +145,6 @@ namespace VRGIN.Controls
 
                     _GripStartTime = 0; // To make sure that pos is not reset
                 }
-            }
-
-            if(VR.Settings.GrabRotationImmediateMode && Controller.GetPressUp(ButtonMask.Trigger | ButtonMask.Touchpad))
-            {
-                // Rotate
-                var originalLookDirection = Vector3.ProjectOnPlane(transform.position - VR.Camera.Head.position, Vector3.up).normalized;
-                var currentLookDirection = Vector3.ProjectOnPlane(VR.Camera.Head.forward, Vector3.up).normalized;
-                var angleDeg = Calculator.Angle(originalLookDirection, currentLookDirection);
-
-                VR.Camera.SteamCam.origin.transform.RotateAround(VR.Camera.Head.position, Vector3.up, angleDeg);
             }
 
             HandleDoubleClick();
