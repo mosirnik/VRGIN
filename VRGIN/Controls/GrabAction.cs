@@ -122,18 +122,14 @@ namespace VRGIN.Controls
             else
             {
                 var diffPos = transform.position - _PrevControllerPos;
-                var diffRot = Quaternion.Inverse(_PrevControllerRot * Quaternion.Inverse(transform.rotation)) * (transform.rotation * Quaternion.Inverse(transform.rotation));
                 if (Time.unscaledTime - _GripStartTime > GRIP_TIME_THRESHOLD || Calculator.Distance(diffPos.magnitude) > GRIP_DIFF_THRESHOLD)
                 {
-                    var forwardA = Vector3.forward;
-                    var forwardB = diffRot * Vector3.forward;
-                    var angleDiff = Calculator.Angle(forwardA, forwardB) * VR.Settings.RotationMultiplier;
-
                     VR.Camera.SteamCam.origin.transform.position -= diffPos;
                     //VRLog.Info("Rotate: {0}", NormalizeAngle(diffRot.eulerAngles.y));
                     if (!VR.Settings.GrabRotationImmediateMode && Controller.GetPress(ButtonMask.Trigger | ButtonMask.Touchpad))
                     {
-                        VR.Camera.SteamCam.origin.transform.RotateAround(VR.Camera.Head.position, Vector3.up, -angleDiff);
+                        var angleDiff = (transform.rotation * Quaternion.Inverse(_PrevControllerRot)).eulerAngles.y;
+                        VR.Camera.SteamCam.origin.transform.RotateAround(transform.position, Vector3.up, -angleDiff);
                     }
 
                     _GripStartTime = 0; // To make sure that pos is not reset
