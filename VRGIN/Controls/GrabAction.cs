@@ -34,6 +34,8 @@ namespace VRGIN.Controls
         private float _InitialIPD;
         private Vector3 _PrevFromTo;
         private ulong _ButtonMask;
+        private int _DoubleClickPhase;
+        private float _DoubleClickDeadline;
 
         public GrabAction(Controller controller, Device device, ulong buttonMask)
         {
@@ -124,18 +126,27 @@ namespace VRGIN.Controls
                 var diffPos = transform.position - _PrevControllerPos;
                 if (Time.unscaledTime - _GripStartTime > GRIP_TIME_THRESHOLD || Calculator.Distance(diffPos.magnitude) > GRIP_DIFF_THRESHOLD)
                 {
-                    VR.Camera.SteamCam.origin.transform.position -= diffPos;
+                    var origin = VR.Camera.SteamCam.origin.transform;
                     //VRLog.Info("Rotate: {0}", NormalizeAngle(diffRot.eulerAngles.y));
-                    if (!VR.Settings.GrabRotationImmediateMode && Controller.GetPress(ButtonMask.Trigger | ButtonMask.Touchpad))
+                    if (!VR.Settings.GrabRotationImmediateMode && Controller.GetPress(ButtonMask.Trigger))
                     {
-                        var angleDiff = (transform.rotation * Quaternion.Inverse(_PrevControllerRot)).eulerAngles.y;
-                        VR.Camera.SteamCam.origin.transform.RotateAround(transform.position, Vector3.up, -angleDiff);
+                        var invRot = _PrevControllerRot * Quaternion.Inverse(transform.rotation);
+
+                        if (Controller.GetPress(ButtonMask.Touchpad))
+                        {
+                            origin.rotation = invRot * origin.rotation;
+                        }
+                        else
+                        {
+                            origin.RotateAround(transform.position, Vector3.up, invRot.eulerAngles.y);
+                        }
                     }
+                    origin.position -= transform.position - _PrevControllerPos;
 
                     _GripStartTime = 0; // To make sure that pos is not reset
                 }
             }
-            
+
             if(VR.Settings.GrabRotationImmediateMode && Controller.GetPressUp(ButtonMask.Trigger | ButtonMask.Touchpad))
             {
                 // Rotate
@@ -146,10 +157,59 @@ namespace VRGIN.Controls
                 VR.Camera.SteamCam.origin.transform.RotateAround(VR.Camera.Head.position, Vector3.up, angleDeg);
             }
 
+            HandleDoubleClick();
+
             _PrevControllerPos = transform.position;
             _PrevControllerRot = transform.rotation;
 
             return Status.Continue;
+        }
+
+        private void HandleDoubleClick()
+        {
+            if (_DoubleClickPhase == 0)
+            {
+                if (Controller.GetPressDown(ButtonMask.Touchpad))
+                {
+                    _DoubleClickPhase = 1;
+                    _DoubleClickDeadline = Time.unscaledTime + 0.5f;
+                }
+            }
+            else if(_DoubleClickDeadline < Time.unscaledTime)
+            {
+                _DoubleClickPhase = 0;
+            }
+            else
+            {
+                switch (_DoubleClickPhase)
+                {
+                    case 1:
+                    case 3:
+                        if (Controller.GetPressUp(ButtonMask.Touchpad))
+                        {
+                            _DoubleClickPhase++;
+                        }
+                        break;
+                    case 2:
+                        if (Controller.GetPressDown(ButtonMask.Touchpad))
+                        {
+                            _DoubleClickPhase++;
+                        }
+                        break;
+                }
+                if (_DoubleClickPhase == 4)
+                {
+                    MakeUpright();
+                    _DoubleClickPhase = 0;
+                }
+            }
+        }
+
+        private void MakeUpright()
+        {
+            var origin = VR.Camera.SteamCam.origin.transform;
+            origin.transform.rotation = Quaternion.Euler(0, origin.eulerAngles.y, 0);
+            origin.position -= transform.position - _PrevControllerPos;
         }
 
         private void InitializeScaleIfNeeded()
