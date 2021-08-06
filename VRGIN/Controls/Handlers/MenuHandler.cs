@@ -31,6 +31,8 @@ namespace VRGIN.Controls.Handlers
         private Buttons _PressedButtons;
         private Controller.TrackpadDirection _LastDirection;
         private float? _NextScrollTime;
+        private List<HelpText> _HelpTexts = new List<HelpText>();
+        private float? _AppButtonPressTime;
 
         enum Buttons
         {
@@ -229,6 +231,7 @@ namespace VRGIN.Controls.Handlers
                 {
                     AbandonGUI();
                 }
+                UpdateHelp();
             }
         }
 
@@ -247,6 +250,51 @@ namespace VRGIN.Controls.Handlers
                 return;
             }
             VR.Input.Mouse.VerticalScroll(amount);
+        }
+
+        private void UpdateHelp()
+        {
+            if (_AppButtonPressTime is float pressTime)
+            {
+                if (pressTime + 0.5f < Time.unscaledTime && _HelpTexts.Count == 0)
+                {
+                    ShowHelp();
+                }
+                else if (!Device.GetPress(EVRButtonId.k_EButton_ApplicationMenu))
+                {
+                    _AppButtonPressTime = null;
+                    HideHelp();
+                }
+            }
+            else
+            {
+                if (Device.GetPress(EVRButtonId.k_EButton_ApplicationMenu))
+                {
+                    _AppButtonPressTime = Time.unscaledTime;
+                }
+            }
+        }
+
+        private void ShowHelp()
+        {
+            var trigger = _Controller.FindAttachPosition("trigger");
+            var trackpad = _Controller.FindAttachPosition("trackpad") ?? _Controller.FindAttachPosition("thumbstick");
+            var grip = _Controller.FindAttachPosition("lgrip") ?? _Controller.FindAttachPosition("handgrip");
+            _HelpTexts.Add(HelpText.Create("Click", trigger, new Vector3(0.06f, -0.04f, -0.05f)));
+            _HelpTexts.Add(HelpText.Create("Right click", trackpad, new Vector3(0.05f, 0.04f, 0), new Vector3(0.01f, 0, 0)));
+            _HelpTexts.Add(HelpText.Create("Middle click", trackpad, new Vector3(0, 0.06f, 0.02f)));
+            _HelpTexts.Add(HelpText.Create("Scroll up", trackpad, new Vector3(0, 0.04f, 0.07f), new Vector3(0, 0, 0.01f)));
+            _HelpTexts.Add(HelpText.Create("Scroll down", trackpad, new Vector3(0, 0.04f, -0.05f), new Vector3(0, 0, -0.01f)));
+            _HelpTexts.Add(HelpText.Create("Grab screen", grip, new Vector3(-0.06f, 0, -0.05f)));
+        }
+
+        private void HideHelp()
+        {
+            foreach (var help in _HelpTexts)
+            {
+                Destroy(help);
+            }
+            _HelpTexts.Clear();
         }
 
         bool IsResizing
@@ -348,6 +396,7 @@ namespace VRGIN.Controls.Handlers
         private void ClearPresses()
         {
             AbandonGUI();
+            HideHelp();
             if ((_PressedButtons & Buttons.Left) != 0)
             {
                 VR.Input.Mouse.LeftButtonUp();
@@ -362,6 +411,7 @@ namespace VRGIN.Controls.Handlers
             }
             _PressedButtons = 0;
             _NextScrollTime = null;
+            _AppButtonPressTime = null;
         }
 
         private void AbandonGUI()
