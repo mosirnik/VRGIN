@@ -62,6 +62,7 @@ namespace VRGIN.U46.Visuals
         {
             var model = new GameObject("Model").AddComponent<HMDLoader>();
             model.NewParent = PlayArea.transform;
+            DontDestroyOnLoad(model.gameObject);
 
             return model.transform;
         }
@@ -134,8 +135,6 @@ namespace VRGIN.U46.Visuals
 
             protected override void OnStart()
             {
-                DontDestroyOnLoad(this);
-
                 transform.localScale = Vector3.zero;
 
                 _Model = gameObject.AddComponent<SteamVR_RenderModel>();
