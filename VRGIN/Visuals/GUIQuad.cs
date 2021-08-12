@@ -55,6 +55,13 @@ namespace VRGIN.Visuals
             }
 
             gui.UpdateGUI();
+
+            var back = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            back.name = "back";
+            back.transform.SetParent(gui.transform, false);
+            back.transform.localRotation = Quaternion.AngleAxis(180f, Vector3.up);
+            Destroy(back.GetComponent<Collider>());
+
             return gui;
         }
 
