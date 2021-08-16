@@ -32,12 +32,28 @@ namespace VRGIN.Core
 
         protected void Update()
         {
-            SafelyCall(OnUpdate);
+            // Inline SafetyCall to avoid allocation.
+            try
+            {
+                OnUpdate();
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+            }
         }
 
         protected void LateUpdate()
         {
-            SafelyCall(OnLateUpdate);
+            // Inline SafetyCall to avoid allocation.
+            try
+            {
+                OnLateUpdate();
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+            }
         }
 
         protected virtual void OnStart() { }
