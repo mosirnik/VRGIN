@@ -40,15 +40,9 @@ namespace VRGIN.Core
             SafelyCall(OnLateUpdate);
         }
 
-        protected void FixedUpdate()
-        {
-            SafelyCall(OnFixedUpdate);
-        }
-
         protected virtual void OnStart() { }
         protected virtual void OnUpdate() { }
         protected virtual void OnLateUpdate() { }
-        protected virtual void OnFixedUpdate() { }
         protected virtual void OnAwake() { }
 
 
