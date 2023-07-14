@@ -63,28 +63,48 @@ namespace VRGIN.Native
             {
                 if(_Handle == null)
                 {
-                    int currentWidth = 0;
-                    RECT rect = new RECT();
-                    var name = Process.GetCurrentProcess().ProcessName;
                     var handles = GetRootWindowsOfProcess(Process.GetCurrentProcess().Id);
+                    double best = double.NegativeInfinity;
                     foreach (var handle in handles)
                     {
-                        if(GetWindowRect(handle, ref rect) && (rect.Right - rect.Left) > currentWidth)
+                        double score = MainWindowScore(handle);
+                        if (score >= best)
                         {
-                            currentWidth = rect.Right - rect.Left;
+                            best = score;
                             _Handle = handle;
                         }
                     }
-
-                    if(!_Handle.HasValue)
-                    {
-                        VRLog.Warn("Fall back to first handle!");
-                        _Handle = handles.First();
-                    }
-
                 }
                 return _Handle.Value;
             }
+        }
+
+        /// <summary>
+        /// Returns a score indicating how likely the given window handle points
+        /// to the main game window. This is needed because our versions of Unity
+        /// don't offer a good way to find the main window.
+        /// </summary>
+        /// <param name="handle"></param>
+        /// <returns></returns>
+        private static double MainWindowScore(IntPtr handle)
+        {
+            double score = 0;
+            RECT rect = new RECT();
+            WindowsInterop.GetClientRect(handle, ref rect);
+            int width = rect.Right - rect.Left;
+            int height = rect.Bottom - rect.Top;
+            if (width == Screen.width && height == Screen.height)
+            {
+                score += 1;
+            }
+            score -= Math.Abs(Math.Log(Screen.width + 1) - Math.Log(width + 1)) +
+                Math.Abs(Math.Log(Screen.height + 1) - Math.Log(height + 1));
+            if (GetWindowText(handle).Contains("BepInEx"))
+            {
+                // Likely a BepInEx console.
+                score -= 0.3;
+            }
+            return score;
         }
         
         public static string GetWindowText(IntPtr hWnd)
