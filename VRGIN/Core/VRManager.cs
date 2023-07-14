@@ -179,10 +179,24 @@ namespace VRGIN.Core
             //StartCoroutine(Load());
         }
 
+        // A scratch-pad buffer to keep OnUpdate allocation-free.
+        private Camera[] _cameraBuffer = new Camera[0];
         protected override void OnUpdate()
         {
-            foreach(var camera in Camera.allCameras.Except(_CheckedCameras).ToList())
+            int numCameras = Camera.allCamerasCount;
+            if (_cameraBuffer.Length < numCameras)
             {
+                _cameraBuffer = new Camera[numCameras];
+            }
+            Camera.GetAllCameras(_cameraBuffer);
+            for(int i = 0; i < numCameras; i++)
+            {
+                var camera = _cameraBuffer[i];
+                _cameraBuffer[i] = null;
+                if (_CheckedCameras.Contains(camera))
+                {
+                    continue;
+                }
                 _CheckedCameras.Add(camera);
                 var judgement = VR.Interpreter.JudgeCamera(camera);
                 VRLog.Info("Detected new camera {0} Action: {1}", camera.name, judgement);
