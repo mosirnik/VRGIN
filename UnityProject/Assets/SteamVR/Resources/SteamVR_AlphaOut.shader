@@ -1,4 +1,6 @@
-﻿Shader "Custom/SteamVR_BlitFlip" {
+﻿//======= Copyright (c) Valve Corporation, All rights reserved. ===============
+// UNITY_SHADER_NO_UPGRADE
+Shader "Custom/SteamVR_AlphaOut" {
 	Properties { _MainTex ("Base (RGB)", 2D) = "white" {} }
 
 	CGINCLUDE
@@ -14,14 +16,24 @@
 
 	v2f vert(appdata_base v) {
 		v2f o;
+#if UNITY_VERSION >= 540
+		o.pos = UnityObjectToClipPos(v.vertex);
+#else
 		o.pos = mul(UNITY_MATRIX_MVP, v.vertex);
-		o.tex.x = v.texcoord.x;
-		o.tex.y = 1 - v.texcoord.y;
+#endif
+		o.tex = v.texcoord;
 		return o;
 	}
 
+	float luminance(float3 color)
+	{
+		return 0.2126 * color.r + 0.7152 * color.g + 0.0722 * color.b;
+	}
+
 	float4 frag(v2f i) : COLOR {
-		return tex2D(_MainTex, i.tex);
+		float4 color = tex2D(_MainTex, i.tex);
+		float a = saturate(color.a + luminance(color.rgb));
+		return float4(a, a, a, a);
 	}
 
 	ENDCG

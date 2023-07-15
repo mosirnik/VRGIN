@@ -48,7 +48,6 @@ artifacts/
 *_p.c
 *_i.h
 *.ilk
-*.meta
 *.obj
 *.pch
 *.pdb
@@ -250,3 +249,8 @@ paket-files/
 # JetBrains Rider
 .idea/
 *.sln.iml
+
+# Unity stuff
+/UnityProject/AssetBundles
+/UnityProject/Library
+/UnityProject/Temp

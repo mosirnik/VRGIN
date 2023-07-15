@@ -214,16 +214,6 @@
     <None Include="SteamVR\Prefabs\[CameraRig].prefab" />
     <None Include="SteamVR\Prefabs\[Status].prefab" />
     <None Include="SteamVR\Prefabs\[SteamVR].prefab" />
-    <None Include="SteamVR\Resources\SteamVR_AlphaOut.shader" />
-    <None Include="SteamVR\Resources\SteamVR_Blit.shader" />
-    <None Include="SteamVR\Resources\SteamVR_BlitFlip.shader" />
-    <None Include="SteamVR\Resources\SteamVR_ClearAll.shader" />
-    <None Include="SteamVR\Resources\SteamVR_ColorOut.shader" />
-    <None Include="SteamVR\Resources\SteamVR_ExternalCamera.prefab" />
-    <None Include="SteamVR\Resources\SteamVR_Fade.shader" />
-    <None Include="SteamVR\Resources\SteamVR_HiddenArea.shader" />
-    <None Include="SteamVR\Resources\SteamVR_Overlay.shader" />
-    <None Include="SteamVR\Resources\SteamVR_SphericalProjection.shader" />
     <None Include="SteamVR\Textures\arrow.png.meta" />
     <None Include="SteamVR\Textures\background.png.meta" />
     <None Include="SteamVR\Textures\logo.png.meta" />
