@@ -39,7 +39,18 @@ Shader "UnlitTransparentCombined" {
             {
                 float4 texval0 = tex2D(_MainTex, i.uv0);
                 float4 texval1 = tex2D(_SubTex, i.uv1);
-                return lerp(texval0, texval1, texval1.a);
+                // If the UI texture has an alpha value near 0.5, it is
+                // impossible to tell whether it is a genuinely transparent
+                // UI element or just an artifact of a semi-transparent
+                // topmost layer drawn in front of a solid layer.
+                // We use some crude heuristic here to try to bump the alpha
+                // to 1 in the latter case.
+                float alpha0 = 0.5 < texval0.a ? 1 : texval0.a;
+                float alpha1 = 0.5 < texval1.a ? 1 : texval1.a;
+                float total_alpha = 1 - (1 - alpha0) * (1 - alpha1);
+                float4 color = lerp(texval0, texval1, alpha1 / total_alpha);
+                clip(total_alpha - 0.01);
+                return float4(color.rgb, total_alpha);
             }
             ENDCG
         }
