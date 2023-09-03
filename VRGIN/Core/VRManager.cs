@@ -21,7 +21,7 @@ namespace VRGIN.Core
         public static VRSettings Settings { get { return Context.Settings; } }
         public static Shortcuts Shortcuts { get { return Context.Settings.Shortcuts; } }
         public static VRManager Manager { get { return VRManager.Instance; } }
-        public static InputSimulator Input { get { return VRManager.Instance.Input; } }
+        public static IInputSimulator Input { get { return VRManager.Instance.Input; } }
         //public static SpeechManager Speech { get { return VRManager.Instance.Speech; } }
         public static HMDType HMD { get { return VRManager.Instance.HMD; } }
         public static bool Active { get; set; }
@@ -140,7 +140,7 @@ namespace VRGIN.Core
             get;
             private set;
         }
-        public InputSimulator Input { get; internal set; }
+        public IInputSimulator Input { get; set; }
 
         private static Type ModeType;
 
