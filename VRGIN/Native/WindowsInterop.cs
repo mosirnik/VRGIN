@@ -104,5 +104,18 @@ namespace VRGIN.Native
         [return: MarshalAs(UnmanagedType.Bool)]
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
         public static extern bool SetForegroundWindow(IntPtr hwnd);
+
+        public enum SystemMetric
+        {
+            SM_CXSCREEN = 0,
+            SM_CYSCREEN = 1,
+            SM_XVIRTUALSCREEN = 76,
+            SM_YVIRTUALSCREEN = 77,
+            SM_CXVIRTUALSCREEN = 78,
+            SM_CYVIRTUALSCREEN = 79,
+        }
+
+        [DllImport("user32.dll")]
+        public static extern int GetSystemMetrics(SystemMetric smIndex);
     }
 }

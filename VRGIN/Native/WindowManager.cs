@@ -137,6 +137,15 @@ namespace VRGIN.Native
             return clientRect;
         }
 
+        public static RECT GetVirtualScreenRect()
+        {
+            int left = WindowsInterop.GetSystemMetrics(WindowsInterop.SystemMetric.SM_XVIRTUALSCREEN);
+            int width = WindowsInterop.GetSystemMetrics(WindowsInterop.SystemMetric.SM_CXVIRTUALSCREEN);
+            int top = WindowsInterop.GetSystemMetrics(WindowsInterop.SystemMetric.SM_YVIRTUALSCREEN);
+            int height = WindowsInterop.GetSystemMetrics(WindowsInterop.SystemMetric.SM_CYVIRTUALSCREEN);
+            return new RECT(left, top, left + width, top + height);
+        }
+
         public static void Activate()
         {
             SetForegroundWindow(Handle);

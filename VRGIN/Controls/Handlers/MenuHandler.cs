@@ -373,7 +373,7 @@ namespace VRGIN.Controls.Handlers
                         //VRLog.Info("New Pos: {0}, textureCoord: {1}", newPos, hit.textureCoord);
                         if (!mouseDownPosition.HasValue || Vector2.Distance(mouseDownPosition.Value, newPos) > MOUSE_STABILIZER_THRESHOLD)
                         {
-                            MouseOperations.SetClientCursorPosition((int)newPos.x, (int)newPos.y);
+                            SetMousePosition(newPos);
                             mouseDownPosition = null;
                         }
                     }
@@ -471,6 +471,17 @@ namespace VRGIN.Controls.Handlers
         }
 
         public bool IsPressing => _PressedButtons != 0;
+
+        private static void SetMousePosition(Vector2 newPos)
+        {
+            int x = (int)Mathf.Round(newPos.x);
+            int y = (int)Mathf.Round(newPos.y);
+            var clientRect = WindowManager.GetClientRect();
+            var virtualScreenRect = WindowManager.GetVirtualScreenRect();
+            VR.Input.Mouse.MoveMouseToPositionOnVirtualDesktop(
+                (clientRect.Left + x - virtualScreenRect.Left) * 65535.0 / (virtualScreenRect.Right - virtualScreenRect.Left),
+                (clientRect.Top + y - virtualScreenRect.Top) * 65535.0 / (virtualScreenRect.Bottom - virtualScreenRect.Top));
+        }
 
         class ResizeHandler : ProtectedBehaviour
         {
