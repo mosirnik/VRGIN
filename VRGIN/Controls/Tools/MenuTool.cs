@@ -158,7 +158,7 @@ namespace VRGIN.Controls.Tools
                 _DeltaX -= deltaX;
                 _DeltaY -= deltaY;
 
-                VR.Input.Mouse.MoveMouseBy(deltaX, deltaY);
+                MoveMouseWithinWindow(deltaX, deltaY);
                 touchDownPosition = pos;
             }
 
@@ -167,6 +167,18 @@ namespace VRGIN.Controls.Tools
                 VR.Input.Mouse.LeftButtonUp();
                 pressDownTime = 0;
             }
+        }
+
+        private static void MoveMouseWithinWindow(int deltaX, int deltaY)
+        {
+            var clientRect = WindowManager.GetClientRect();
+            var virtualScreenRect = WindowManager.GetVirtualScreenRect();
+            var current = MouseOperations.GetCursorPosition();
+            var x = Mathf.Clamp(current.X + deltaX, clientRect.Left, clientRect.Right - 1);
+            var y = Mathf.Clamp(current.Y + deltaY, clientRect.Top, clientRect.Bottom - 1);
+            VR.Input.Mouse.MoveMouseToPositionOnVirtualDesktop(
+                (x - virtualScreenRect.Left) * 65535.0 / (virtualScreenRect.Right - virtualScreenRect.Left),
+                (y - virtualScreenRect.Top) * 65535.0 / (virtualScreenRect.Bottom - virtualScreenRect.Top));
         }
 
         public override List<HelpText> GetHelpTexts()
