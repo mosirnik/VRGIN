@@ -292,7 +292,7 @@ namespace VRGIN.Controls.Handlers
         {
             foreach (var help in _HelpTexts)
             {
-                Destroy(help);
+                Destroy(help.gameObject);
             }
             _HelpTexts.Clear();
         }
